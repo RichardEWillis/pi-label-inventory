@@ -3,8 +3,8 @@ Python based inventory system with package label generator
 
 # Required Libraries
 
-pylabel   : pip3 install pylabels
-reportlab : pip3 install reportlab
+ pylabel   : pip3 install pylabels
+ reportlab : pip3 install reportlab
 
 # Description
 
@@ -30,4 +30,3 @@ I created this to manage all of the boxes that I packed for moving to a new home
 
   Ver 0.1 Alpha Unstable - in development
 
-  
