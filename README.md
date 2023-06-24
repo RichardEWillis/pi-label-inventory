@@ -24,11 +24,14 @@ I created this to manage all of the boxes that I packed for moving to a new home
 
   - Gather package information via command line menu
   - save information into a file based records system (CSV)
-  - use all or partial record listings to pring out labels
+  - use all or partial record listings to print out label arrays onto A3 / 8.5" x 11" paper.
 
-  As the data is kept in CSV it can be imported into eg. Excel and used to generate a manifest. PAckage weights can be summed up to provide a gross weight estimate.
+  As the data is kept in CSV it can be imported into eg. Excel and used to generate a manifest. Package weights can be summed up to provide a gross weight estimate.
 
-  # State
+# State
 
-  Ver 0.1 Alpha Unstable - in development
+Ver 0.1 Alpha Unstable - in development
 
+# License
+
+GPLv3. Refer to LICENSE file in this repository.
