@@ -4,8 +4,9 @@ Python based inventory system with package label generator
 # Required Libraries
 
 ```
-pylabel   : pip3 install pylabels
-reportlab : pip3 install reportlab
+pylabel          : pip3 install pylabels
+reportlab        : pip3 install reportlab
+simple-term-menu : pip3 install simple-term-menu
 ```
 
 # Description
