@@ -25,6 +25,8 @@ from ivdbase_class import ivdbase
 # PDF file will be kept and the new printed labels added to it.
 OVERWRITE_EXISTING_PDF = True
 
+VER = "1.0b BETA"
+
 def clear_screen():
     if os.name == 'nt':
         os.system('cls')
@@ -63,7 +65,7 @@ def render_label(sheet, seqnum, desc, weight):
 def main_loop():
 
     # Menu Options
-    menu_title = "Package Inventory and Label Generator Ver 0.01 (ALPHA-UNSTABLE)"
+    menu_title = "Package Inventory and Label Generator Ver %s" % VER
     options = ["[o] Open Inventory CSV File", 
                "[s] Save Inventory CSV File", 
                "[l] List Inventory", 
