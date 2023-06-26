@@ -31,7 +31,7 @@ I created this to manage all of the boxes that I packed for moving to a new home
 
 # State
 
-Ver 0.1 Alpha Unstable - in development
+Ver 1.0 Beta, Stable,Testable
 
 # License
 
