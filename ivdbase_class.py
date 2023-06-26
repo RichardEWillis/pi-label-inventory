@@ -37,7 +37,7 @@ class ivdbase(object):
 
     # Encode discrete data parameters into a dict object
     def recGen(sn, desc, wgt):
-        return {"sn":sn, "desc":desc, "wgt":wgt}
+        return {"sn":int(sn), "desc":desc, "wgt":wgt}
 
     # Decode discrete data parameters from a dict object
     def recDec(obj):
@@ -74,10 +74,21 @@ class ivdbase(object):
     def Size(self):
         return self.dblen
     
+    # find the dbase index for the given serial number
+    def IndexOfSN(self, sn):
+        for i in range(self.dblen):
+            #print(type(self.dblist[i]["sn"]).__name__)
+            #print(type(sn).__name__)
+            if self.dblist[i]["sn"] == int(sn):
+                return i
+        return -1 # not found
+
     #TODO: place a .csv at the end if not in the filename
     def Load(self, filename):
         self.dblist = []
         self.dblen = 0
+        if not filename.endswith('.csv'):
+            filename += '.csv'
         if IVDBDEBUG:
             print("{ivdbase.Load()} loading - %s" % filename)
         try:
@@ -97,6 +108,8 @@ class ivdbase(object):
         return self.dblen
 
     def Save(self, filename):
+        if not filename.endswith('.csv'):
+            filename += '.csv'
         with open(filename, 'w', encoding="utf-8") as f:
             idx = 0
             for r in self.dblist:
@@ -160,6 +173,11 @@ if __name__ == '__main__':
         print("Replace test: passed")
     else:
         print("Replace test: failed")
+
+    # Try getting the index of a serial number
+    isn = 5
+    rc = db.IndexOfSN(isn)
+    print("Testing IndexOfSN(5), returned: %d" % rc)
 
     print("Dumping the internal database...")
     print(db.dblist)

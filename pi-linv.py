@@ -21,6 +21,10 @@ from reportlab.graphics import shapes
 from simple_term_menu import TerminalMenu
 from ivdbase_class import ivdbase
 
+# if True, existing pdf files will be over-written, if set False the existing
+# PDF file will be kept and the new printed labels added to it.
+OVERWRITE_EXISTING_PDF = True
+
 def clear_screen():
     if os.name == 'nt':
         os.system('cls')
@@ -44,10 +48,10 @@ def draw_label(label, width, height, obj):
         seq = sval=f"{obj['sn']}".zfill(3)
         fullseq = f"REW-{seq}"
         weight = obj['wgt']
-        fsqwgt = f"{fullseq} {weight}"
+        fsqwgt = f"{fullseq:<7} {weight:>6}"
         descstr = obj['desc']
         label.add( shapes.String(4, 42, descstr, fontName="Helvetica", fontSize=20) )
-        label.add( shapes.String(2, 4, fsqwgt, fontName="Helvetica", fontSize=36) )
+        label.add( shapes.String(2, 4, fsqwgt, fontName="Helvetica", fontSize=34) )
     except:
         pass
 
@@ -133,20 +137,20 @@ def main_loop():
                 len = db.Size()
                 for i in range(len):
                     (sn, desc, wgt) = ivdbase.recDec( db.Read(i) )
-                    print("[%03d] sn = %03d weight = %03d desc: %s" % (int(i), int(sn), int(wgt), desc) )
+                    print("[%03d] sn = %03d weight = %s desc: %s" % (int(i), int(sn), wgt, desc) )
 
                 input("Hit a key to continue")
                 continue
 
             if sel == OBJ_ADD:
-                sn = 1 + db.Size()
+                sn = int(1 + db.Size())
                 wgt = 0
                 desc = ""
                 while True:
                     print("Serial: %03d" % sn)
                     wgt = input("Weight: ")
                     desc = input("Description: ")
-                    getok = input("sn[%03d] weight[%03d] [%s] - Accept? (Y/N) [Y]")
+                    getok = input("sn[%03d] weight[%s] [%s] - Accept? (Y/N) [Y]" % (sn, wgt, desc))
                     if getok == "" or getok == "Y" or getok == "y":
                         break
                     else:
@@ -155,10 +159,90 @@ def main_loop():
                 continue
 
             if sel == OBJ_REPL:
-                pass
-            if sel == PRINT_LABELS:
-                pass
+                while True:
+                    isn = int( input("SerialNum to Edit? : ") )
+                    oidx = db.IndexOfSN(isn)
+                    if oidx >= 0:
+                        (foo, desc, wgt) = ivdbase.recDec( db.Read(oidx) )
+                        iwgt = input("Weight [%s]: " % wgt)
+                        if iwgt == "":
+                            iwgt = wgt
+                        idesc = input("Description [%s]: " % desc)
+                        if idesc == "":
+                            idesc = desc
+                        getok = input("sn[%03d] weight[%s] [%s] - Accept? (Y/N) [Y]" % (isn, iwgt, idesc))
+                        if getok == "" or getok == "Y" or getok == "y":
+                            break
+                    else:
+                        print("serial number not found")
+                        input("Hit a key to continue")
+                rc = db.Replace(oidx, ivdbase.recGen(isn, idesc, iwgt) )
+                if rc == 0:
+                    print("Index %s updated." % isn)
+                else:
+                    print("Error occured duing dbase edit.")
+                input("Hit a key to continue")
+                continue
 
+            if sel == PRINT_LABELS:
+                if db.Size() == 0:
+                    input("No inventory in memory, press Enter to continue.")
+                    continue
+                start_val = 0
+                end_val = 0
+                while True:
+                    styp = input("Search by (I)ndex or (S)erialNumber (I/S) [I] ? : ")
+                    if styp == "" or styp[0] == 'I' or styp[0] == 'i':
+                        stype = "IDX"
+                        start_val = input("Select Start Index for print [0] :")
+                        if start_val == "":
+                            start_val = 0
+                        else:
+                            start_val = int(start_val)
+                        e_val = db.Size() - 1
+                        end_val = input("Select Last Index to print [%d] :" % e_val)
+                        if end_val == "":
+                            end_val = e_val
+                        else:
+                            end_val = int(end_val)
+                        print("Printing from Index [%d] to Index [%d]" % (start_val, end_val))
+                    else:
+                        stype = "SN"
+                        start_val = input("Select Starting SerialNum for print [1] :")
+                        if start_val == "":
+                            start_val = 1
+                        else:
+                            start_val = int(start_val)
+                        e_obj = db.Read( db.Size() - 1 )
+                        e_val = int( e_obj['sn'] )
+                        end_val = input("Select Last SerialNum to print [%d] :" % e_val)
+                        if end_val == "":
+                            end_val = e_val
+                        else:
+                            end_val = int(end_val)
+                        if end_val > e_val:
+                            input("Ending SerialNum out of range (too high). Hit return to re-enter.")
+                            continue # while-True
+                        print("Printing from SN [%d] to SN [%d]" % (start_val, end_val))
+                        # convert to indexes, for printing.
+                        start_val = db.IndexOfSN(start_val)
+                        end_val = db.IndexOfSN(end_val)
+                    break                
+                # exit while-loop, everything converted to indexes.
+                for i in range(start_val, end_val+1):
+                    (snval, descval, wgtval) = ivdbase.recDec( db.Read(i) )
+                    render_label(sheet, seqnum=int(snval), desc=descval, weight=wgtval)
+                if filename == "":
+                    filename = input("Enter a filename to save the generated labels to (PDF)")
+                finput = filename.split('.') # pop off any possible suffix and replace with a .pdf
+                labelfile = finput[0] + '.pdf'
+                if OVERWRITE_EXISTING_PDF:
+                    #check if exists and then delete existing - option
+                    if os.path.isfile(labelfile):
+                        os.remove(labelfile)
+                sheet.save(labelfile)
+                input("PDF document %s saved to file. Press any key to continue." % labelfile)
+                continue
 
             if sel != MENU_EXIT:
                 # block here for a bit so the selection shows up.
@@ -168,6 +252,7 @@ def main_loop():
             run_loop = False
 
     print("Exited.")
+
 
 
 
