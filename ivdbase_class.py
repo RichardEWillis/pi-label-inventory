@@ -74,6 +74,13 @@ class ivdbase(object):
     def Size(self):
         return self.dblen
     
+    def CalcWeight(self):
+        wtot = 0.0
+        for obj in self.dblist:
+            wgt = float(obj["wgt"])
+            wtot += wgt
+        return wtot
+
     # find the dbase index for the given serial number
     def IndexOfSN(self, sn):
         for i in range(self.dblen):

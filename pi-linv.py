@@ -25,7 +25,7 @@ from ivdbase_class import ivdbase
 # PDF file will be kept and the new printed labels added to it.
 OVERWRITE_EXISTING_PDF = True
 
-VER = "1.0b BETA"
+VER = "1.1b BETA"
 
 def clear_screen():
     if os.name == 'nt':
@@ -72,6 +72,7 @@ def main_loop():
                "[a] Add Parcel", 
                "[e] Edit Parcel", 
                "[p] Generate Labels", 
+               "[w] Report Gross Weight",
                "[x] Exit" ]
 
     INV_FILE_READ = 0
@@ -80,7 +81,8 @@ def main_loop():
     OBJ_ADD = 3
     OBJ_REPL = 4
     PRINT_LABELS = 5
-    MENU_EXIT = 6
+    GROSS_WEIGHT = 6
+    MENU_EXIT = 7
 
     # Create an A4 portrait (210mm x 297mm) sheets with 2 columns and 8 rows of
     # labels. Each label is 90mm x 25mm with a 2mm rounded corner. The margins are
@@ -152,6 +154,13 @@ def main_loop():
                     print("Serial: %03d" % sn)
                     wgt = input("Weight: ")
                     desc = input("Description: ")
+                    # check desc for commas and convert to asterisk. Commas will cause an error parsing the .csv
+                    ndesc = ""
+                    for L in desc:
+                        if L == ',':
+                            L = '*'
+                        ndesc += L
+                    desc = ndesc
                     getok = input("sn[%03d] weight[%s] [%s] - Accept? (Y/N) [Y]" % (sn, wgt, desc))
                     if getok == "" or getok == "Y" or getok == "y":
                         break
@@ -245,6 +254,10 @@ def main_loop():
                 sheet.save(labelfile)
                 input("PDF document %s saved to file. Press any key to continue." % labelfile)
                 continue
+            
+            if sel == GROSS_WEIGHT:
+                totweight = db.CalcWeight()
+                print("Total Accumulated Weight : %f" % totweight)
 
             if sel != MENU_EXIT:
                 # block here for a bit so the selection shows up.
