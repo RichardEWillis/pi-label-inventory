@@ -56,6 +56,10 @@ class ivdbase(object):
     def lineDec(line):
         line = line.rstrip()
         el = line.split(',')
+        # strip out any possible saved whitespaces in the csv file.
+        for i in range(len(el)):
+            el[i] = el[i].lstrip()
+            el[i] = el[i].rstrip()
         if len(el) >= 3:
             if IVDBDEBUG:
                 print("{ivdbase.lineDec()} sn:%s, desc:%s, wgt:%s" % (el[0],el[1],el[2]) )
